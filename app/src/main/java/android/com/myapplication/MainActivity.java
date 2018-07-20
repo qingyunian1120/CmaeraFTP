@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -39,7 +40,7 @@ public class MainActivity extends Activity {
 
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);// 设置全屏
         setContentView(R.layout.activity_main);
-        wakeUpAndUnlock();
+        wakeUpAndUnlock();//亮屏并解锁
         sv_camera_sufaceview = findViewById(R.id.sv_camera_surfaceview);
         sv_camera_sufaceview.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -67,6 +68,8 @@ public class MainActivity extends Activity {
 
             }
         });
+        //删除文件格式
+        //deleteFile("/storage/emulated/legacy/DCIM/Camera/" + "2018_07_20_15_31_21.jpg");
         mHandler.postDelayed(mRunnable,8000);
     }
 
@@ -76,7 +79,6 @@ public class MainActivity extends Activity {
         public void run() {
             Log.e("xuzhenyue", Thread.currentThread().getName() + " " + count);
             count++;
-            setTitle("" + count);
             takePhoto();
             // 每8秒执行一次
             mHandler.postDelayed(mRunnable, 8000);  //给自己发送消息，自运行
@@ -88,13 +90,13 @@ public class MainActivity extends Activity {
             public void onPictureTaken(byte[] bytes, Camera camera) {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
                 try{
-                    long curTime = System.currentTimeMillis();
+                    long curTime = System.currentTimeMillis();//获取当前时间
                     //xzy modify for overlay record filename
                     Log.d("xuzhenyue","123456");
-                    Date date = new Date(curTime);
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_dd_MM_HH_mm_ss",
-                            Locale.ENGLISH);
-                    String time = simpleDateFormat.format(date);
+                    Date date = new Date(curTime);//转换为年月日的时间
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss",
+                            Locale.ENGLISH);//设置时间格式
+                    String time = simpleDateFormat.format(date);//将时间转换为设置的时间格式
                     FileOutputStream fileOutputStream = new FileOutputStream("/storage/emulated/legacy/DCIM/Camera/" + time+".jpg");
                     bitmap.compress(Bitmap.CompressFormat.JPEG,100,fileOutputStream);
                     camera.stopPreview();
@@ -130,4 +132,29 @@ public class MainActivity extends Activity {
         keyguardLock.reenableKeyguard();
         keyguardLock.disableKeyguard(); // 解锁
     }
+
+    /**
+     * 删除单个文件
+     *
+     * @param fileName
+     *            要删除的文件的文件名
+     * @return 单个文件删除成功返回true，否则返回false
+     */
+    public  boolean deleteFile(String fileName) {
+        File file = new File(fileName);
+        // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
+        if (file.exists() && file.isFile()) {
+            if (file.delete()) {
+                Log.d("xuzhenyue","删除单个文件" + fileName + "成功！");
+                return true;
+            } else {
+                Log.d("xuzhenyue","删除单个文件" + fileName + "失败！");
+                return false;
+            }
+        } else {
+            Log.d("xuzhenyue","删除单个文件失败：" + fileName + "不存在！");
+            return false;
+        }
+    }
+
 }
