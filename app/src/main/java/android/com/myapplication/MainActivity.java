@@ -27,9 +27,29 @@ import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
+    //ftp上传功能
+    private static final String TAG = "MainActivity";
+
+    public static final String FTP_CONNECT_SUCCESSS = "ftp连接成功";
+    public static final String FTP_CONNECT_FAIL = "ftp连接失败";
+    public static final String FTP_DISCONNECT_SUCCESS = "ftp断开连接";
+    public static final String FTP_FILE_NOTEXISTS = "ftp上文件不存在";
+
+    public static final String FTP_UPLOAD_SUCCESS = "ftp文件上传成功";
+    public static final String FTP_UPLOAD_FAIL = "ftp文件上传失败";
+    public static final String FTP_UPLOAD_LOADING = "ftp文件正在上传";
+
+    public static final String FTP_DOWN_LOADING = "ftp文件正在下载";
+    public static final String FTP_DOWN_SUCCESS = "ftp文件下载成功";
+    public static final String FTP_DOWN_FAIL = "ftp文件下载失败";
+
+    public static final String FTP_DELETEFILE_SUCCESS = "ftp文件删除成功";
+    public static final String FTP_DELETEFILE_FAIL = "ftp文件删除失败";
+    //ftp上传
 
     private SurfaceView sv_camera_sufaceview;
     private Camera camera;
+    FTP ftp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +65,7 @@ public class MainActivity extends Activity {
         sv_camera_sufaceview.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder surfaceHolder) {
-                camera = Camera.open();
+                camera = Camera.open(0);
                 Camera.Parameters parameters = camera.getParameters();
                 parameters.setPictureFormat(PixelFormat.JPEG);
                 parameters.set("jpeg-quality",100);
@@ -69,8 +89,8 @@ public class MainActivity extends Activity {
             }
         });
         //删除文件格式
-        //deleteFile("/storage/emulated/legacy/DCIM/Camera/" + "2018_07_20_15_31_21.jpg");
         mHandler.postDelayed(mRunnable,8000);
+        //new Thread(mRunnable).start();
     }
 
     private int count = 0;
@@ -90,18 +110,41 @@ public class MainActivity extends Activity {
             public void onPictureTaken(byte[] bytes, Camera camera) {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
                 try{
-                    long curTime = System.currentTimeMillis();//获取当前时间
+                    //获取当前时间
+                    long curTime = System.currentTimeMillis();
                     //xzy modify for overlay record filename
                     Log.d("xuzhenyue","123456");
-                    Date date = new Date(curTime);//转换为年月日的时间
+                    //转换为年月日的时间
+                    Date date = new Date(curTime);
+                    //设置时间格式
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss",
-                            Locale.ENGLISH);//设置时间格式
-                    String time = simpleDateFormat.format(date);//将时间转换为设置的时间格式
+                            Locale.ENGLISH);
+                    //将时间转换为设置的时间格式
+                    String time = simpleDateFormat.format(date);
+                    final String nameFormat = "/storage/emulated/legacy/DCIM/Camera/" + time+".jpg";
                     FileOutputStream fileOutputStream = new FileOutputStream("/storage/emulated/legacy/DCIM/Camera/" + time+".jpg");
                     bitmap.compress(Bitmap.CompressFormat.JPEG,100,fileOutputStream);
+                    //ftp上传
+                    SimpleDateFormat documentNameFormat = new SimpleDateFormat("yyyy_MM_dd",
+                            Locale.ENGLISH);
+                    final String documentPatch = /*simpleDateFormat.format(date) + */"picture/"/*+ documentNameFormat.format(date)+ "/" + "001/"*/;
+                    new Thread(new Runnable(){
+                        @Override
+                        public void run() {
+                            ftp = new FTP();
+                            try {
+                                ftp.uploadSingleFile(new File(nameFormat),documentPatch);
+                                deleteFile(new File(nameFormat));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
                     camera.stopPreview();
                     camera.startPreview();
                 }catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -156,5 +199,10 @@ public class MainActivity extends Activity {
             return false;
         }
     }
-
+    //删除上传后的文件
+    public void deleteFile(File file){
+        if(file.exists()){
+            file.delete();
+        }
+    }
 }
