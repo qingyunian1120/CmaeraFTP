@@ -4,6 +4,7 @@ import android.util.Log;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPClientConfig;
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.File;
@@ -43,11 +44,10 @@ public class FTP {
      * @throws IOException
      */
     public void uploadSingleFile(File singleFile, String remotePath
-                                 ) throws IOException {
+                                 ) throws Exception {
 
         // 上传之前初始化
         this.uploadBeforeOperate(remotePath);
-
         boolean flag;
         flag = uploadingSingle(singleFile);
 
@@ -74,6 +74,11 @@ public class FTP {
         boolean flag;
 
         for (File singleFile : fileList) {
+            try {
+                deleteSingleFile(remotePath + singleFile.getName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             flag = uploadingSingle(singleFile);
             if (flag) {
 
@@ -98,14 +103,17 @@ public class FTP {
                                     ) throws IOException {
         boolean flag = true;
         // 不带进度的方式
-        // // 创建输入流
-         InputStream inputStream = new FileInputStream(localFile);
-        // // 上传单个文件
-         flag = ftpClient.storeFile(localFile.getName(), inputStream);
-         //上传文件后删除本地文件
-         deleteFile(localFile);
-        // // 关闭文件流
-         inputStream.close();
+        // 创建输入流
+        InputStream inputStream = new FileInputStream(localFile);
+        // 上传单个文件
+        flag = ftpClient.storeFile(localFile.getName(), inputStream);
+        //上传文件后删除本地文件
+        if(flag) { ;
+            deleteFile(localFile);
+        }else{
+        }
+        // 关闭文件流
+        inputStream.close();
 
         return flag;
     }
@@ -123,11 +131,8 @@ public class FTP {
         // 打开FTP服务
         try {
             this.openConnect();
-//            listener.onUploadProgress(MainActivity.FTP_CONNECT_SUCCESSS, 0,
-//                    null);
         } catch (IOException e1) {
             e1.printStackTrace();
-//            listener.onUploadProgress(MainActivity.FTP_CONNECT_FAIL, 0, null);
             return;
         }
 
@@ -218,6 +223,44 @@ public class FTP {
         if(file.exists()){
             file.delete();
         }
+    }
+    /**
+     * 删除Ftp下的文件.
+     *
+     * @param serverPath
+     *            Ftp目录及文件路径
+     * @throws IOException
+     */
+    public void deleteSingleFile(String serverPath)
+            throws Exception {
+
+
+        //String serverPath = "picture/2018_07_24/001/2018_07_24_18_19_33.jpg";
+        // 打开FTP服务
+        try {
+            this.openConnect();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return;
+        }
+
+        // 先判断服务器文件是否存在
+        FTPFile[] files = ftpClient.listFiles(serverPath);
+        if (files.length == 0) {
+            return;
+        }
+
+        //进行删除操作
+        boolean flag = true;
+        flag = ftpClient.deleteFile(serverPath);
+        if (flag) {
+        } else {
+        }
+
+        // 删除完成之后关闭连接
+        this.closeConnect();
+
+        return;
     }
 
 }

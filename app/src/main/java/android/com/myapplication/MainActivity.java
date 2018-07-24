@@ -139,6 +139,8 @@ public class MainActivity extends Activity {
                                 //deleteFile(new File(nameFormat));
                             } catch (IOException e) {
                                 e.printStackTrace();
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
                     }).start();
