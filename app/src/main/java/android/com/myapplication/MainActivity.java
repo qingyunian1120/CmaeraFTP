@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
@@ -88,8 +89,7 @@ public class MainActivity extends Activity {
 
             }
         });
-        //删除文件格式
-        mHandler.postDelayed(mRunnable,8000);
+       mHandler.postDelayed(mRunnable,8000);
         //new Thread(mRunnable).start();
     }
 
@@ -127,14 +127,16 @@ public class MainActivity extends Activity {
                     //ftp上传
                     SimpleDateFormat documentNameFormat = new SimpleDateFormat("yyyy_MM_dd",
                             Locale.ENGLISH);
-                    final String documentPatch = "pictrue/"+ documentNameFormat.format(date)+ "/" + "001/";
+                    final String documentPatch = "picture/"+ documentNameFormat.format(date)+ "/" + "001/";
                     new Thread(new Runnable(){
                         @Override
                         public void run() {
                             ftp = new FTP();
                             try {
+                                //单个文件上传
                                 ftp.uploadSingleFile(new File(nameFormat),documentPatch);
-                                deleteFile(new File(nameFormat));
+                                //ftp.uploadMultiFile(getFiles(),documentPatch);
+                                //deleteFile(new File(nameFormat));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -204,5 +206,17 @@ public class MainActivity extends Activity {
         if(file.exists()){
             file.delete();
         }
+    }
+    //获取文件夹下的所有文件
+    private LinkedList<File> getFiles(){
+        LinkedList<File> list = new LinkedList<File>();
+        File[] allFile = new File("/storage/emulated/legacy/DCIM/Camera/").listFiles();
+        for (int i = 0; i < allFile.length;i++){
+            File file = allFile[i];
+            if(file.isFile()){
+                list.add(file);
+            }
+        }
+        return list;
     }
 }

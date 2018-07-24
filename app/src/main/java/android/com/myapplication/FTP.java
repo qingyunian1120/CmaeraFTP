@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
 
 public class FTP {
     //服务器名
@@ -49,17 +50,42 @@ public class FTP {
 
         boolean flag;
         flag = uploadingSingle(singleFile);
-//        if (flag) {
-//            listener.onUploadProgress(MainActivity.FTP_UPLOAD_SUCCESS, 0,
-//                    singleFile);
-//        } else {
-//            listener.onUploadProgress(MainActivity.FTP_UPLOAD_FAIL, 0,
-//                    singleFile);
-//        }
 
         // 上传完成之后关闭连接
         this.uploadAfterOperate();
     }
+
+    /**
+     * 上传多个文件.
+     *
+     * @param fileList
+     *            本地文件
+     * @param remotePath
+     *            FTP目录
+     *            监听器
+     * @throws IOException
+     */
+    public void uploadMultiFile(LinkedList<File> fileList, String remotePath
+                                ) throws IOException {
+
+        // 上传之前初始化
+        this.uploadBeforeOperate(remotePath);
+
+        boolean flag;
+
+        for (File singleFile : fileList) {
+            flag = uploadingSingle(singleFile);
+            if (flag) {
+
+            } else {
+
+            }
+        }
+
+        // 上传完成之后关闭连接
+        this.uploadAfterOperate();
+    }
+
     /**
      * 上传单个文件.
      *
@@ -76,16 +102,10 @@ public class FTP {
          InputStream inputStream = new FileInputStream(localFile);
         // // 上传单个文件
          flag = ftpClient.storeFile(localFile.getName(), inputStream);
+         //上传文件后删除本地文件
+         deleteFile(localFile);
         // // 关闭文件流
          inputStream.close();
-
-        // 带有进度的方式
-//        BufferedInputStream buffIn = new BufferedInputStream(
-//                new FileInputStream(localFile));
-//        ProgressInputStream progressInput = new ProgressInputStream(buffIn,
-//                listener, localFile);
-//        flag = ftpClient.storeFile(localFile.getName(), progressInput);
-//        buffIn.close();
 
         return flag;
     }
@@ -114,7 +134,8 @@ public class FTP {
         // 设置模式
         ftpClient.setFileTransferMode(org.apache.commons.net.ftp.FTP.STREAM_TRANSFER_MODE);
         // FTP下创建文件夹
-        String[] pah = remotePath.split("/");
+        String directory = remotePath.substring(0,remotePath.lastIndexOf("/")+1);
+        String[] pah = directory.split("/");
         // 分层创建目录
         for (String pa : pah) {
             System.out.println(pa);
@@ -137,7 +158,6 @@ public class FTP {
     private void uploadAfterOperate()
             throws IOException {
         this.closeConnect();
-//        listener.onUploadProgress(MainActivity.FTP_DISCONNECT_SUCCESS, 0, null);
     }
 
     /**
@@ -190,6 +210,13 @@ public class FTP {
             ftpClient.logout();
             // 断开连接
             ftpClient.disconnect();
+        }
+    }
+
+    //删除上传后的文件
+    public void deleteFile(File file){
+        if(file.exists()){
+            file.delete();
         }
     }
 
