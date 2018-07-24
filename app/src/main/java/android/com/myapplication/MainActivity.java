@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
                     //ftp上传
                     SimpleDateFormat documentNameFormat = new SimpleDateFormat("yyyy_MM_dd",
                             Locale.ENGLISH);
-                    final String documentPatch = /*simpleDateFormat.format(date) + */"picture/"/*+ documentNameFormat.format(date)+ "/" + "001/"*/;
+                    final String documentPatch = "pictrue/"+ documentNameFormat.format(date)+ "/" + "001/";
                     new Thread(new Runnable(){
                         @Override
                         public void run() {

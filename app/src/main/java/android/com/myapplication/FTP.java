@@ -114,10 +114,17 @@ public class FTP {
         // 设置模式
         ftpClient.setFileTransferMode(org.apache.commons.net.ftp.FTP.STREAM_TRANSFER_MODE);
         // FTP下创建文件夹
-        Boolean shifouchuangjian = ftpClient.makeDirectory(remotePath);
-        Log.d("xuzhenyue","makedirectory:" + remotePath + " chuangjian :" +shifouchuangjian);
+        String[] pah = remotePath.split("/");
+        // 分层创建目录
+        for (String pa : pah) {
+            System.out.println(pa);
+            ftpClient.makeDirectory(pa);
+            // 切到到对应目录
+            ftpClient.changeWorkingDirectory(pa);
+        }
+        //ftpClient.makeDirectory(remotePath);
         // 改变FTP目录
-        ftpClient.changeWorkingDirectory(remotePath);
+        //ftpClient.changeWorkingDirectory(remotePath);
         // 上传单个文件
 
     }
