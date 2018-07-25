@@ -210,7 +210,7 @@ public class MainActivity extends Activity {
         }
     }
     //获取文件夹下的所有文件
-    private LinkedList<File> getFiles(){
+    private static LinkedList<File> getFiles(){
         LinkedList<File> list = new LinkedList<File>();
         File[] allFile = new File("/storage/emulated/legacy/DCIM/Camera/").listFiles();
         for (int i = 0; i < allFile.length;i++){
@@ -220,5 +220,20 @@ public class MainActivity extends Activity {
             }
         }
         return list;
+    }
+    public static void  uploateFile(){
+        Log.d("xuzhenyue","Main网络连接成功");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                FTP ftp =new FTP();
+                try {
+                    Log.d("xuzhenyue","批量上传");
+                    ftp.uploadMultiFile(getFiles(),"picture/2018_07_25/001/");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

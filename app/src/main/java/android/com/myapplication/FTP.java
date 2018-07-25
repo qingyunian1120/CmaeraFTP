@@ -50,6 +50,9 @@ public class FTP {
         this.uploadBeforeOperate(remotePath);
         boolean flag;
         flag = uploadingSingle(singleFile);
+        if(flag){
+            Log.d("xuzhenyue","上传成功");
+        }
 
         // 上传完成之后关闭连接
         this.uploadAfterOperate();
@@ -72,7 +75,7 @@ public class FTP {
         this.uploadBeforeOperate(remotePath);
 
         boolean flag;
-
+        Log.d("xuzhenyue","开始批量上传");
         for (File singleFile : fileList) {
             try {
                 deleteSingleFile(remotePath + singleFile.getName());
@@ -86,7 +89,6 @@ public class FTP {
 
             }
         }
-
         // 上传完成之后关闭连接
         this.uploadAfterOperate();
     }
@@ -218,7 +220,7 @@ public class FTP {
         }
     }
 
-    //删除上传后的文件
+    //删除上传后的本地文件
     public void deleteFile(File file){
         if(file.exists()){
             file.delete();
