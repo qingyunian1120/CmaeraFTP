@@ -4,14 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedList;
 
 public class NetStatusReceiver extends BroadcastReceiver {
     Context mContext;

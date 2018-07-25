@@ -72,12 +72,16 @@ public class FTP {
                                 ) throws IOException {
 
         // 上传之前初始化
-        this.uploadBeforeOperate(remotePath);
+        //this.uploadBeforeOperate(remotePath);
 
         boolean flag;
         Log.d("xuzhenyue","开始批量上传");
         for (File singleFile : fileList) {
             try {
+                //根据图片的时间确定上传的文件夹
+                String date = singleFile.getName().substring(0,10);;
+                remotePath = "picture/" + date + "/001/";
+                this.uploadBeforeOperate(remotePath);
                 deleteSingleFile(remotePath + singleFile.getName());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -235,9 +239,6 @@ public class FTP {
      */
     public void deleteSingleFile(String serverPath)
             throws Exception {
-
-
-        //String serverPath = "picture/2018_07_24/001/2018_07_24_18_19_33.jpg";
         // 打开FTP服务
         try {
             this.openConnect();

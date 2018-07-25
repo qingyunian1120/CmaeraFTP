@@ -5,9 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -37,7 +35,6 @@ public class MultiFlieUploadService extends Service {
                 public void run() {
                     if (isNetworkOnline()) {
                         FTP ftp = new FTP();
-                        Log.d("xuzhenyue", "批量上传111");
                         try {
                             Log.d("xuzhenyue", "批量上传");
                             ftp.uploadMultiFile(getFiles(), "picture/2018_07_25/001/");
