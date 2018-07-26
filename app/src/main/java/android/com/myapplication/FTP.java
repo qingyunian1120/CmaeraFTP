@@ -52,6 +52,8 @@ public class FTP {
         flag = uploadingSingle(singleFile);
         if(flag){
             Log.d("xuzhenyue","上传成功");
+        }else{
+            Log.d("xuzhenyue","上传失败");
         }
 
         // 上传完成之后关闭连接
@@ -73,28 +75,19 @@ public class FTP {
 
         // 上传之前初始化
         //this.uploadBeforeOperate(remotePath);
-
-        boolean flag;
         Log.d("xuzhenyue","开始批量上传");
         for (File singleFile : fileList) {
             try {
                 //根据图片的时间确定上传的文件夹
                 String date = singleFile.getName().substring(0,10);;
                 remotePath = "picture/" + date + "/001/";
-                this.uploadBeforeOperate(remotePath);
                 deleteSingleFile(remotePath + singleFile.getName());
+                this.uploadBeforeOperate(remotePath);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            flag = uploadingSingle(singleFile);
-            if (flag) {
-
-            } else {
-
-            }
+            uploadingSingle(singleFile);
         }
-        // 上传完成之后关闭连接
-        this.uploadAfterOperate();
     }
 
     /**
@@ -150,15 +143,13 @@ public class FTP {
         // 分层创建目录
         for (String pa : pah) {
             System.out.println(pa);
-            ftpClient.makeDirectory(pa);
+            //建立文件夹
+            boolean test = ftpClient.makeDirectory(pa);
+            System.out.println("创建成功:" + test);
             // 切到到对应目录
-            ftpClient.changeWorkingDirectory(pa);
+            boolean flag = ftpClient.changeWorkingDirectory(pa);
+            System.out.println("进入成功:" + flag);
         }
-        //ftpClient.makeDirectory(remotePath);
-        // 改变FTP目录
-        //ftpClient.changeWorkingDirectory(remotePath);
-        // 上传单个文件
-
     }
 
     /**
